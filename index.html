@@ -58,7 +58,7 @@ button {
     background: white;
     color: black;
     padding: 6px 9px;
-    margin: 20px;
+    margin: 12px;
     font-size: 18px;
     /* 高亮行同样由 JS 设置 transform，此处可保留或删除 */
 }
@@ -89,35 +89,50 @@ button {
 <script>
 
 const nouns = [
-    "余烬", "雷声", "瀑布", "裂缝", 
-    "海水", "街道", "花园", "尘埃", 
-    "波浪", "火焰", "寂静", "春天", 
-    "野草", "月亮", "谎言", "思绪"
+    "余烬", "雷声", "瀑布", "裂缝", "海水", "街道", "花园", "尘埃", 
+    "波浪", "火焰", "寂静", "春天", "野草", "月亮", "谎言", "思绪", 
+    "宇宙", "空气", "时间", "灵感", "日出", "黄昏", "黎明", "晚霞",
+    "玫瑰", "沙滩", "路灯", "光线", "尘埃", "自由", "答案", "春雨",
+    "世界", "弹壳", "答案", "春雨", "雨水", "琴键", "落叶", "种子",
+    "蜡笔", "梦境", "旋律", "泪水", "希望", "理智", "小狗", "小猫",
+    "偏见", "钥匙", "纽扣", "视线", "繁星", "浪潮", "夜空", "欲望",
+    "翅膀", "羽毛", "灵魂", "悲痛", "盔甲", "抽屉", "意义", "海洋",
+    "灰尘", "焦虑", "未来", "凌晨", "傍晚", "日落", "话语", "湖底",
+    "寒风", "风铃", "信封", "伤疤", "暮色", "微风", "城市", "记忆"
 ]
 
 const verbs = [ // 动词词库，包含动词和形容词
-    "跳跃", "沉思", "晃动", "沉默", 
-    "漂浮", "遗忘", "喧闹", "燃烧", 
-    "灼烧", "柔软", "破碎", "亲吻", 
-    "迷恋", "模糊", "枯萎", "叹息", 
-    "流淌", "闪耀", "流泪", "共鸣", 
-    "潮湿"
+    "跳跃", "沉思", "晃动", "沉默", "漂浮", "遗忘", "喧闹", "燃烧", 
+    "灼热", "柔软", "破碎", "亲吻", "迷恋", "模糊", "枯萎", "叹息", 
+    "流淌", "闪耀", "落泪", "共鸣", "潮湿", "旋转", "选择", "叛逆", 
+    "等待", "逃避", "不朽", "点亮", "扬起", "寻找", "经历", "漂泊", 
+    "缠绵", "呼吸", "堂皇", "反思", "打湿", "起身", "承诺", "孤独", 
+    "昏暗", "滞后", "思考", "涂画", "嘲弄", "陌生", "消退", "纵容", 
+    "惋惜", "倾斜", "呐喊", "等待", "到达", "感激", "约会", "泛滥", 
+    "单薄", "残缺", "完整", "修复", "妄想", "书写", "淹没", "灿烂", 
+    "拥抱", "暂停", "幻想", "起飞", "走过", "深陷", "挣脱", "眺望", 
+    "混淆", "摇摆", "跳舞", "吻别", "喧嚣", "落下", "流动", "指引"
 ]
 
 const highlights = [
-"现实中的狂欢",
-"制度上的裂缝",
-"理论突然崩塌",
-"夜晚继续扩张"
+"一种异乎寻常。", "无法停止的本能", "夜晚继续扩张", "一切皆为无物。",
+"梦境还是现实？", "几乎消失不见", "时间仿佛被定格", "安静突然来临",
+"转瞬即逝的。", "近乎完美。", "点燃世界，扬起灰烬", "小鸟抖落星辰",
+"大海的野心", "“去看海吧”", "等待。", "是这样吗？",
+"一切照旧。", "声音的颗粒感", "远离纷扰。", "拥抱自由。",
+"无动于衷。", "没有什么不可以", "你是否会有所怀念", "LOVE",
+"Memory is vivid.", "If it were meant to come.", "It's a joke.", "I guess.",
+"拥抱自由", "wind stroking my ears", "I'm losing my mind.", "有天我们会再次相见",
+"在世界的尽头", "Let it pour.", "Shadows on the wall hate me.", "I don't know other places.",
+"I don't hope for the greatest.", "Can you call me loud.", "天空坠入海洋", "都与我无关。",
+"L'amour"
 ]
-
-function randomWord(){
-    return words[Math.floor(Math.random()*words.length)]
-}
 
 function randomHighlight(){
     return highlights[Math.floor(Math.random()*highlights.length)]
 }
+
+
 
 function generatePoem(){
 
@@ -161,7 +176,7 @@ function generatePoem(){
         spanVerb.innerText = verb;
         // 重新生成随机角度（每个词块独立）
         if (Math.random() < 0.5) {
-            angle = -2 + Math.random() * 1.1;
+            angle = -2 + Math.random() * 0.8;
         } else {
             angle = 0.5 + Math.random() * 1.1;
         }
@@ -171,25 +186,24 @@ function generatePoem(){
         poemDiv.appendChild(line); 
     }
 
-    /* 第五行的highlight停用
-     for(let i=4;i<5;i++){ // 第五行
+     if (Math.random() < 0.6) {   // 可将0.5改为其他值调整概率。第五行highlight随机出现。
+        let line = document.createElement("div");
+        let span = document.createElement("span");
+        span.className = "highlight";
+        span.innerText = randomHighlight();
 
-        let line=document.createElement("div")
-
-        for(let j=0;j<1;j++){ // 第五行只有一个词
-
-            let span=document.createElement("span")
-            span.className="highlight"
-            span.innerText=randomHighlight()
-
-            span.style.setProperty("--r",Math.random()) // 行内的旋转角度改这里
-
-            line.appendChild(span)
+        // 设置与前四行相同的随机角度
+        let angle;
+        if (Math.random() < 0.5) {
+            angle = -1.6 + Math.random() * 0.8;  // 范围约 -2 ~ -0.9
+        } else {
+            angle = 0.5 + Math.random() * 1.1; // 范围约 0.5 ~ 1.6
         }
-
-        poemDiv.appendChild(line)
+        span.style.transform = `rotate(${angle}deg)`;
+        
+        line.appendChild(span);
+        poemDiv.appendChild(line);
     }
-    */ 
 
 }
 
