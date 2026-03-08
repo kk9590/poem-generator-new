@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-<title>拼贴诗生成器</title>
-    
+<title>Chance Verse</title>
+
 <style>
 /* 重置默认边距（可选，避免浏览器默认样式干扰） */
 * {
@@ -62,6 +62,14 @@ button {
     font-size: 18px;
     /* 高亮行同样由 JS 设置 transform，此处可保留或删除 */
 }
+
+.author {
+    font-size: 14px;        /* 小一点，可按需调整 */
+    color: #5a5a5a;            /* 浅灰色（#aaa 是常见浅灰） */
+    margin-top: 5px;        /* 与标题的间距 */
+    margin-bottom: 5px;    /* 与按钮的间距，可根据实际效果调整 */
+    /* 字体继承 body 的 Arial，无需重复声明 */
+}
 </style>
 
 </head>
@@ -69,9 +77,11 @@ button {
 
 <body>
 
-<h1>拼贴诗生成器</h1>
+<h1>Chance Verse</h1>
 
-<button onclick="generatePoem()">生成</button>
+<p class="author">宇尽咸</p>
+
+<button onclick="generatePoem()">Go</button>
 
 <div id="poem"></div>
 
