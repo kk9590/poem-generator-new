@@ -2,9 +2,8 @@ let selectedTemplate = null;
 let highlightEnabled = false; // 新增一个状态变量
 
 // 模式A、B按钮
-document.querySelectorAll('.templateOption').forEach(option => {
+document.querySelectorAll('.templateOption[data-mode]').forEach(option => {
     option.addEventListener('click', () => {
-
         const mode = option.dataset.mode;
 
         if (selectedTemplate === mode) {
@@ -13,7 +12,7 @@ document.querySelectorAll('.templateOption').forEach(option => {
         } else {
             selectedTemplate = mode;
 
-            document.querySelectorAll('.templateOption')
+            document.querySelectorAll('.templateOption[data-mode]')
                 .forEach(o => o.classList.remove('selected'));
 
             option.classList.add('selected');
