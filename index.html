@@ -9,9 +9,15 @@
 <body>
     <h1>Chance Verse</h1>
     <p class="author">宇尽咸</p>
-    <button onclick="generatePoem()">Go</button>
+    <div id="controls">
+    <span class="templateOption" data-mode="A">模版一</span>
+    <span class="templateOption" data-mode="B">模版二</span>
+    <span id="highlightToggle" class="templateOption">Highlight</span>
+    <button id="goButton" onclick="generatePoem()">GO</button>
+    </div>  
     <div id="poem"></div>
 
     <script src="script.js"></script>
 </body>
 </html>
+
