@@ -1,0 +1,64 @@
+/* 重置默认边距（可选，避免浏览器默认样式干扰） */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: black;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    padding-top: 60px;
+    padding-left: 10px;   /* 手机端左右留白 */
+    padding-right: 10px;
+}
+
+button {
+    padding: 10px 16px;
+    font-size: 16px;
+    margin-top: 30px;
+    margin-bottom: 90px;
+    max-width: 100%;      /* 防止按钮过宽 */
+}
+
+#poem {
+    width: 100%;          /* 自适应手机宽度 */
+    max-width: 400px;     /* 大屏上限400px */
+    margin: 0 auto;       /* 居中 */
+}
+
+/* 行间距：每行之间留8px，最后一行不留 */
+#poem > div:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.word {
+    display: inline-block;
+    background: white;
+    color: black;
+    padding: 6px 9px;
+    margin: 5px;
+    font-size: 18px;
+    /* transform 已在 JS 中通过行内样式设置，这里可以删除或保留（不影响） */
+    /* transform: rotate(calc(-3deg + 6deg * var(--r))); */
+}
+
+.highlight {  
+    display: inline-block;
+    background: white;
+    color: black;
+    padding: 6px 9px;
+    margin: 12px;
+    font-size: 18px;
+    /* 高亮行同样由 JS 设置 transform，此处可保留或删除 */
+}
+
+.author {
+    font-size: 14px;        /* 小一点，可按需调整 */
+    color: #5a5a5a;            /* 浅灰色（#aaa 是常见浅灰） */
+    margin-top: 5px;        /* 与标题的间距 */
+    margin-bottom: 5px;    /* 与按钮的间距，可根据实际效果调整 */
+    /* 字体继承 body 的 Arial，无需重复声明 */
+}
