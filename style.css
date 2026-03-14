@@ -55,11 +55,12 @@ body {
     /* 字体继承 body 的 Arial，无需重复声明 */
 }
 
-/* 锁定词块的高亮样式 */
-.locked {
-    border: 1px solid black;
-    box-shadow: 2px 2px 0px rgba(0,0,0,0.6);
-    background: #e9e9e9;
+/* 锁定词块的样式 */
+.locked::after {
+    content: "📌";
+    font-size: 12px;
+    position: absolute;
+    margin-left: 4px;
 }
 
 /* 重置按钮默认样式 */
@@ -113,8 +114,8 @@ button {
 }
 
 .templateOption.selected {
-    border: 0.6px solid rgb(243, 243, 243); 
-    background: rgb(233, 233, 233);
+    border: 0.6px solid rgb(246, 246, 246); 
+    background: rgb(239, 239, 239);
 }
 
 
