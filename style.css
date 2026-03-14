@@ -7,7 +7,7 @@
 
 body {
     background: black;
-    color: white;
+    color: rgb(233, 233, 233);
     font-family: Arial;
     text-align: center;
     padding-top: 60px;
@@ -15,12 +15,14 @@ body {
     padding-right: 10px;
 }
 
-button {
-    padding: 10px 16px;
+#goButton {
+    margin-left: 15px;      /* 与AB拉开距离 */
+    padding: 5px 10px;
     font-size: 16px;
-    margin-top: 30px;
-    margin-bottom: 90px;
-    max-width: 100%;      /* 防止按钮过宽 */
+    background: rgb(244, 244, 244);
+    color: black;
+    border: none;
+    cursor: pointer;
 }
 
 #poem {
@@ -59,6 +61,56 @@ button {
     font-size: 14px;        /* 小一点，可按需调整 */
     color: #5a5a5a;            /* 浅灰色（#aaa 是常见浅灰） */
     margin-top: 5px;        /* 与标题的间距 */
-    margin-bottom: 5px;    /* 与按钮的间距，可根据实际效果调整 */
+    margin-bottom: 35px;    /* 与按钮的间距，可根据实际效果调整 */
     /* 字体继承 body 的 Arial，无需重复声明 */
+}
+
+/* 锁定词块的高亮样式 */
+.locked {
+    border: 1px solid black;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.6);
+    background: #e9e9e9;
+}
+
+#controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;        /* A和B之间的距离 */
+    margin-top: 0px;
+    margin-bottom: 90px;
+}
+
+/* template，模板A、B按钮样式 */
+#templateSelector {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+
+.templateOption {
+    display: inline-block;
+    background: rgb(182, 182, 182);
+    color: black;
+    padding: 4px 8px;
+    margin: 0.01px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.templateOption.selected {
+    border: 0.6px solid rgb(243, 243, 243); 
+    background: rgb(233, 233, 233);
+}
+
+
+.templateOption, /* 按钮加一层阴影 */
+#goButton {
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px rgba(255,255,255,0.4);
+}
+
+#highlightToggle {
+    font-size: 15px;
+    padding: 5.5px 9px;
 }
