@@ -10,14 +10,15 @@
     <h1>Chance Verse</h1>
     <p class="author">宇尽咸</p>
     <div id="controls">
-    <span class="templateOption" data-mode="A">模版一</span>
-    <span class="templateOption" data-mode="B">模版二</span>
-    <span id="highlightToggle" class="templateOption">Highlight</span>
-    <button id="goButton" onclick="generatePoem()">GO</button>
+        <span class="templateOption" data-mode="A">模版一</span>
+        <span class="templateOption" data-mode="B">模版二</span>
+        <span id="highlightToggle" class="templateOption">Highlight</span>
+        <button id="goButton">GO</button>
     </div>  
     <div id="poem"></div>
 
-    <script src="script.js"></script>
+    <!-- 先引入词库，再引入主逻辑 -->
+    <script src="words.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
-
