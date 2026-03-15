@@ -10,11 +10,20 @@
     <h1>Chance Verse</h1>
     <p class="author">宇尽咸</p>
     <div id="controls">
-        <span class="templateOption" data-mode="A">模版一</span>
-        <span class="templateOption" data-mode="B">模版二</span>
-        <span id="highlightToggle" class="templateOption">Highlight</span>
         <button id="goButton">GO</button>
-    </div>  
+        <button id="filterButton">⚙</button>
+    </div>
+    <div id="filterPanel" class="hidden">
+        <div class="filterSection">
+            <span>Mode</span>
+            <div class="templateOption" data-mode="A">A</div>
+            <div class="templateOption" data-mode="B">B</div>
+        </div>
+        <div class="filterSection">
+            <span>Extra</span>
+            <div class="templateOption" id="highlightToggle">Highlight</div>
+        </div>
+    </div>
     <div id="poem"></div>
 
     <!-- 先引入词库，再引入主逻辑 -->
