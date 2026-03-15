@@ -89,9 +89,9 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;        /* A和B之间的距离 */
+    gap: 6px;        /* A和B之间的距离 */
     margin-top: 0px;
-    margin-bottom: 110px;
+    margin-bottom: 90px;
 }
 
 /* template，模板A、B按钮样式 */
@@ -128,4 +128,59 @@ button {
 #highlightToggle {
     font-size: 15px;
     padding: 5.5px 9px;
+}
+
+#filterButton{  /* 下拉按钮⚙ */
+    background:rgb(0, 0, 0);
+    color:rgb(171, 171, 171); 
+    padding:5px 10px;
+    border-radius:4px;
+    font-size:20px;
+}
+
+/* 下拉面板 */
+#filterPanel{
+    background:#111;
+    border:1px solid #444;
+    padding:15px;
+    width:200px;
+    margin:10px auto;
+    border-radius:6px;
+
+    position:absolute;
+    top:185px;
+    left:50%;
+    transform:translateX(-50%);
+
+    z-index:1000;   /* 关键：放到最上层 */
+}
+.hidden{
+    display:none;
+}
+.filterSection{
+    margin-bottom:15px;
+}
+
+#poem > div{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+}
+
+#poem{
+    width:100%;
+    max-width:420px;
+    margin:0 auto;
+    position:relative;
+}
+
+.wordGroup{
+    display:inline-block;
+}
+
+.lineLock{
+    cursor:pointer;
+    font-size:16px;
 }
