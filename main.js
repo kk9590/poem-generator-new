@@ -1,4 +1,20 @@
 // main.js
+
+const filterButton = document.getElementById("filterButton")
+const filterPanel = document.getElementById("filterPanel")
+filterButton.addEventListener("click",()=>{
+    filterPanel.classList.toggle("hidden")
+})
+
+document.addEventListener("click",(e)=>{
+    if(!filterPanel.contains(e.target) && 
+       e.target !== filterButton){
+        filterPanel.classList.add("hidden")
+    }
+})
+
+
+
 let selectedTemplate = null
 let highlightEnabled = false
 let lockedWords = []
@@ -115,8 +131,7 @@ function applyLockStyles(){
 function addLineLockButton(line,row,mode){
     const btn=document.createElement("span")
     btn.innerText="🔒"
-    btn.style.marginLeft="10px"
-    btn.style.cursor="pointer"
+    btn.className="lineLock"
     const locked=lockedLines.some(l=>
         l.row===row && l.mode===mode
     )
@@ -191,12 +206,16 @@ function generateModeA(){
     })
     rowsData.forEach((row,i)=>{
         const line=document.createElement("div")
+        const wordGroup=document.createElement("div")
+        wordGroup.className="wordGroup"
         const s1=createWordSpan(row.noun,"word","noun","A",i,"noun",row.nounAngle)
         const s2=createWordSpan(row.verb,"word","verb","A",i,"verb",row.verbAngle)
-        line.appendChild(s1)
-        line.appendChild(s2)
+        wordGroup.appendChild(s1)
+        wordGroup.appendChild(s2)
+        line.appendChild(wordGroup)
         addLineLockButton(line,i,"A")
         poemDiv.appendChild(line)
+
     })
     if(highlightEnabled){
         const highlightRow=rows
@@ -266,14 +285,17 @@ function generateModeB(){
     })
     rowsData.forEach((row,i)=>{
         const line=document.createElement("div")
+        const wordGroup=document.createElement("div")
+        wordGroup.className="wordGroup"
         const s1=createWordSpan(row.noun1,"word","noun","B",i,"noun1",row.noun1Angle)
         const s2=createWordSpan(row.verb2,"word","verb2","B",i,"verb2",row.verb2Angle)
         const s3=createWordSpan(row.adj2,"word","adj2","B",i,"adj2",row.adj2Angle)
         const s4=createWordSpan(row.noun2,"word","noun","B",i,"noun2",row.noun2Angle)
-        line.appendChild(s1)
-        line.appendChild(s2)
-        line.appendChild(s3)
-        line.appendChild(s4)
+        wordGroup.appendChild(s1)
+        wordGroup.appendChild(s2)
+        wordGroup.appendChild(s3)
+        wordGroup.appendChild(s4)
+        line.appendChild(wordGroup)
         addLineLockButton(line,i,"B")
         poemDiv.appendChild(line)
     })
