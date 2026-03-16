@@ -221,11 +221,23 @@ function generateModeA(){
         const highlightRow=rows
         let text
         let angle=null
-        const locked=lockedLines.find(l=>l.row===highlightRow && l.mode==="A")
-        if(locked){
-            text=locked.words.highlight.text
-            angle=locked.words.highlight.angle
-        }else{
+        const wordLocked = lockedWords.find(w =>
+            w.mode==="A" &&
+            w.row===highlightRow &&
+            w.slot==="highlight"
+        )
+        const lineLocked = lockedLines.find(l =>
+            l.row===highlightRow && l.mode==="A"
+        )
+        if(wordLocked){
+            text=wordLocked.text
+            angle=wordLocked.angle
+        }
+        else if(lineLocked){
+            text=lineLocked.words.highlight.text
+            angle=lineLocked.words.highlight.angle
+        }
+        else{
             text=highlights[Math.floor(Math.random()*highlights.length)]
         }
         const line=document.createElement("div")
@@ -303,11 +315,23 @@ function generateModeB(){
         const highlightRow=rows
         let text
         let angle=null
-        const locked=lockedLines.find(l=>l.row===highlightRow && l.mode==="B")
-        if(locked){
-            text=locked.words.highlight.text
-            angle=locked.words.highlight.angle
-        }else{
+        const wordLocked = lockedWords.find(w =>
+            w.mode==="B" &&
+            w.row===highlightRow &&
+            w.slot==="highlight"
+        )
+        const lineLocked = lockedLines.find(l =>
+            l.row===highlightRow && l.mode==="B"
+        )
+        if(wordLocked){
+            text=wordLocked.text
+            angle=wordLocked.angle
+        }
+        else if(lineLocked){
+            text=lineLocked.words.highlight.text
+            angle=lineLocked.words.highlight.angle
+        }
+        else{
             text=highlights[Math.floor(Math.random()*highlights.length)]
         }
         const line=document.createElement("div")
