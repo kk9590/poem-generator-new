@@ -1,22 +1,19 @@
-// main.js
-
 const filterButton = document.getElementById("filterButton")
 const filterPanel = document.getElementById("filterPanel")
+
 filterButton.addEventListener("click",()=>{
     filterPanel.classList.toggle("hidden")
 })
 
 document.addEventListener("click",(e)=>{
-    if(!filterPanel.contains(e.target) && 
-       e.target !== filterButton){
+    if(!filterPanel.contains(e.target) && e.target !== filterButton){
         filterPanel.classList.add("hidden")
     }
 })
 
-
-
 let selectedTemplate = null
 let highlightEnabled = false
+let titleEnabled = false
 let lockedWords = []
 let lockedLines = []
 
@@ -43,26 +40,33 @@ highlightBtn.addEventListener("click", () => {
     highlightBtn.classList.toggle("selected", highlightEnabled)
 })
 
-/* 随机角度 */
+/* title按钮 */
+const titleBtn = document.getElementById("titleToggle")
+titleBtn.addEventListener("click", () => {
+    titleEnabled = !titleEnabled
+    titleBtn.classList.toggle("selected", titleEnabled)
+})
+
 function randomAngle(){
-    if(Math.random()<0.5){
-        return -2 + Math.random()
-    }
-    return 0.5 + Math.random()
+    return Math.random()<0.5 ? -2 + Math.random() : 0.5 + Math.random()
 }
 
 /* 创建词块 */
-function createWordSpan(text,className,role,mode,row,slot,angle=null){
+function createWordSpan(text,className,role,mode,row,slot,type,angle=null){
     const span=document.createElement("span")
     span.className=className
     span.innerText=text
+
     const rot = angle!==null ? angle : randomAngle()
     span.style.transform=`rotate(${rot}deg)`
+
     span.dataset.angle=rot
     span.dataset.role=role
     span.dataset.mode=mode
     span.dataset.row=row
     span.dataset.slot=slot
+    span.dataset.type=type
+
     span.addEventListener("click",toggleWordLock)
     return span
 }
@@ -70,80 +74,103 @@ function createWordSpan(text,className,role,mode,row,slot,angle=null){
 /* 词锁 */
 function toggleWordLock(e){
     const span=e.currentTarget
-    const text=span.innerText
-    const role=span.dataset.role
-    const mode=span.dataset.mode
-    const row=parseInt(span.dataset.row)
-    const slot=span.dataset.slot
-    const angle=span.dataset.angle
+
+    const data={
+        text:span.innerText,
+        role:span.dataset.role,
+        mode:span.dataset.mode,
+        row:parseInt(span.dataset.row),
+        slot:span.dataset.slot,
+        type:span.dataset.type,
+        angle:span.dataset.angle
+    }
+
     const index=lockedWords.findIndex(w=>
-        w.role===role &&
-        w.row===row &&
-        w.slot===slot &&
-        w.mode===mode
+        w.mode===data.mode &&
+        w.row===data.row &&
+        w.slot===data.slot &&
+        w.type===data.type
     )
+
     if(index===-1){
-        lockedWords.push({text,role,mode,row,slot,angle})
+        lockedWords.push(data)
     }else{
         lockedWords.splice(index,1)
     }
+
     applyLockStyles()
 }
 
 /* 行锁 */
-function toggleLineLock(row,mode){
+function toggleLineLock(row,mode,type){
     const index=lockedLines.findIndex(l=>
-        l.row===row && l.mode===mode
+        l.row===row && l.mode===mode && l.type===type
     )
+
     if(index===-1){
-        const line=document.querySelectorAll("#poem > div")[row]
+        const line=[...document.querySelectorAll("#poem > div")]
+            .find(l =>
+                parseInt(l.dataset.row)===row &&
+                l.dataset.mode===mode &&
+                l.dataset.type===type
+            )
+
+        if(!line) return
+
         const words=line.querySelectorAll(".word, .highlight")
         const saved={}
+
         words.forEach(w=>{
             saved[w.dataset.slot]={
                 text:w.innerText,
                 angle:w.dataset.angle
             }
         })
-        lockedLines.push({row,mode,words:saved})
+
+        lockedLines.push({row,mode,type,words:saved})
     }else{
         lockedLines.splice(index,1)
     }
 }
 
-/* 应用词锁样式 */
+/* 样式 */
 function applyLockStyles(){
     const spans=document.querySelectorAll('#poem .word, #poem .highlight')
+
     spans.forEach(span=>{
-        const role=span.dataset.role
-        const row=parseInt(span.dataset.row)
-        const slot=span.dataset.slot
         const locked=lockedWords.some(w=>
-            w.role===role &&
-            w.row===row &&
-            w.slot===slot
+            w.mode===span.dataset.mode &&
+            w.row==span.dataset.row &&
+            w.slot===span.dataset.slot &&
+            w.type===span.dataset.type
         )
         span.classList.toggle("locked",locked)
     })
 }
 
 /* 行锁按钮 */
-function addLineLockButton(line,row,mode){
+function addLineLockButton(line,row,mode,type){
     const btn=document.createElement("span")
     btn.innerText="🔒"
     btn.className="lineLock"
+
     const locked=lockedLines.some(l=>
-        l.row===row && l.mode===mode
+        l.row===row && l.mode===mode && l.type===type
     )
+
     btn.style.opacity=locked ? "1" : "0.4"
+
     btn.onclick=(e)=>{
         e.stopPropagation()
-        toggleLineLock(row,mode)
+        toggleLineLock(row,mode,type)
+
         const lockedNow=lockedLines.some(l=>
-            l.row===row && l.mode===mode
+            l.row===row && l.mode===mode && l.type===type
         )
+
         btn.style.opacity=lockedNow ? "1" : "0.4"
     }
+
     line.appendChild(btn)
 }
 
@@ -151,21 +178,15 @@ function addLineLockButton(line,row,mode){
 function generatePoem(){
     const poemDiv=document.getElementById("poem")
     poemDiv.innerHTML=""
-    let mode
-    if(selectedTemplate){
-        mode=selectedTemplate
+
+    let mode = selectedTemplate || (Math.random()<0.5 ? "A":"B")
+
+    if(titleEnabled){
+        generateTitle(mode)
     }
-    else if(lockedWords.length>0){
-        mode=lockedWords[0].mode
-    }
-    else{
-        mode=Math.random()<0.5 ? "A" : "B"
-    }
-    if(mode==="A"){
-        generateModeA()
-    }else{
-        generateModeB()
-    }
+
+    mode==="A" ? generateModeA() : generateModeB()
+
     applyLockStyles()
 }
 
@@ -173,77 +194,82 @@ function generatePoem(){
 function generateModeA(){
     const poemDiv=document.getElementById("poem")
     const rows=4
-    const rowsData=[]
-    for(let i=0;i<rows;i++){
-        rowsData.push({
-            noun:null,
-            verb:null,
-            nounAngle:null,
-            verbAngle:null
-        })
-    }
-    lockedLines.forEach(l=>{
-        if(l.mode!=="A") return
-        if(l.row<rows){
-            rowsData[l.row].noun=l.words.noun.text
-            rowsData[l.row].nounAngle=l.words.noun.angle
-            rowsData[l.row].verb=l.words.verb.text
-            rowsData[l.row].verbAngle=l.words.verb.angle
-        }
-    })
-    lockedWords.forEach(w=>{
-        if(w.mode!=="A") return
-        if(w.row<rows){
-            rowsData[w.row][w.slot]=w.text
-            rowsData[w.row][w.slot+"Angle"]=w.angle
-        }
-    })
-    rowsData.forEach(row=>{
-        if(!row.noun)
-            row.noun=nouns[Math.floor(Math.random()*nouns.length)]
-        if(!row.verb)
-            row.verb=verbs[Math.floor(Math.random()*verbs.length)]
-    })
-    rowsData.forEach((row,i)=>{
-        const line=document.createElement("div")
-        const wordGroup=document.createElement("div")
-        wordGroup.className="wordGroup"
-        const s1=createWordSpan(row.noun,"word","noun","A",i,"noun",row.nounAngle)
-        const s2=createWordSpan(row.verb,"word","verb","A",i,"verb",row.verbAngle)
-        wordGroup.appendChild(s1)
-        wordGroup.appendChild(s2)
-        line.appendChild(wordGroup)
-        addLineLockButton(line,i,"A")
-        poemDiv.appendChild(line)
 
-    })
-    if(highlightEnabled){
-        const highlightRow=rows
-        let text
-        let angle=null
-        const wordLocked = lockedWords.find(w =>
-            w.mode==="A" &&
-            w.row===highlightRow &&
-            w.slot==="highlight"
+    for(let i=0;i<rows;i++){
+
+        let noun=null,verb=null
+        let nounAngle=null,verbAngle=null
+
+        const lineLock=lockedLines.find(l =>
+            l.mode==="A" && l.type==="line" && l.row===i
         )
-        const lineLocked = lockedLines.find(l =>
-            l.row===highlightRow && l.mode==="A"
-        )
-        if(wordLocked){
-            text=wordLocked.text
-            angle=wordLocked.angle
+
+        if(lineLock){
+            noun=lineLock.words.noun?.text
+            nounAngle=lineLock.words.noun?.angle
+            verb=lineLock.words.verb?.text
+            verbAngle=lineLock.words.verb?.angle
         }
-        else if(lineLocked){
-            text=lineLocked.words.highlight.text
-            angle=lineLocked.words.highlight.angle
+
+        lockedWords.forEach(w=>{
+            if(w.mode==="A" && w.type==="line" && w.row===i){
+                if(w.slot==="noun"){ noun=w.text; nounAngle=w.angle }
+                if(w.slot==="verb"){ verb=w.text; verbAngle=w.angle }
+            }
+        })
+
+        if(!noun) noun=nouns[Math.floor(Math.random()*nouns.length)]
+        if(!verb) verb=verbs[Math.floor(Math.random()*verbs.length)]
+
+        const line=document.createElement("div")
+        line.dataset.row=i
+        line.dataset.mode="A"
+        line.dataset.type="line"
+
+        const group=document.createElement("div")
+        group.className="wordGroup"
+
+        group.appendChild(createWordSpan(noun,"word","noun","A",i,"noun","line",nounAngle))
+        group.appendChild(createWordSpan(verb,"word","verb","A",i,"verb","line",verbAngle))
+
+        line.appendChild(group)
+        addLineLockButton(line,i,"A","line")
+        poemDiv.appendChild(line)
+    }
+
+    if(highlightEnabled){
+        const type="highlight"
+        const row=0
+
+        let text=null,angle=null
+
+        const lineLock=lockedLines.find(l =>
+            l.mode==="A" && l.type===type
+        )
+
+        const wordLock=lockedWords.find(w =>
+            w.mode==="A" && w.type===type
+        )
+
+        if(lineLock && lineLock.words.highlight){
+            text=lineLock.words.highlight.text
+            angle=lineLock.words.highlight.angle
+        }
+        else if(wordLock){
+            text=wordLock.text
+            angle=wordLock.angle
         }
         else{
             text=highlights[Math.floor(Math.random()*highlights.length)]
         }
+
         const line=document.createElement("div")
-        const span=createWordSpan(text,"highlight","highlight","A",highlightRow,"highlight",angle)
-        line.appendChild(span)
-        addLineLockButton(line,highlightRow,"A")
+        line.dataset.row=row
+        line.dataset.mode="A"
+        line.dataset.type=type
+
+        line.appendChild(createWordSpan(text,"highlight","highlight","A",row,"highlight",type,angle))
+        addLineLockButton(line,row,"A",type)
         poemDiv.appendChild(line)
     }
 }
@@ -251,95 +277,135 @@ function generateModeA(){
 /* 模式B */
 function generateModeB(){
     const poemDiv=document.getElementById("poem")
-    const rows=2
-    const rowsData=[]
-    for(let i=0;i<rows;i++){
-        rowsData.push({
-            noun1:null,
-            verb2:null,
-            adj2:null,
-            noun2:null,
-            noun1Angle:null,
-            verb2Angle:null,
-            adj2Angle:null,
-            noun2Angle:null
+
+    for(let i=0;i<2;i++){
+
+        let data={
+            noun1:null,verb2:null,adj2:null,noun2:null,
+            noun1Angle:null,verb2Angle:null,adj2Angle:null,noun2Angle:null
+        }
+
+        const lineLock=lockedLines.find(l =>
+            l.mode==="B" && l.type==="line" && l.row===i
+        )
+
+        if(lineLock){
+            Object.keys(data).forEach(k=>{
+                if(lineLock.words[k]){
+                    data[k]=lineLock.words[k].text
+                    data[k+"Angle"]=lineLock.words[k].angle
+                }
+            })
+        }
+
+        lockedWords.forEach(w=>{
+            if(w.mode==="B" && w.type==="line" && w.row===i){
+                data[w.slot]=w.text
+                data[w.slot+"Angle"]=w.angle
+            }
         })
-    }
-    lockedLines.forEach(l=>{
-        if(l.mode!=="B") return
-        if(l.row<rows){
-            rowsData[l.row].noun1=l.words.noun1.text
-            rowsData[l.row].noun1Angle=l.words.noun1.angle
-            rowsData[l.row].verb2=l.words.verb2.text
-            rowsData[l.row].verb2Angle=l.words.verb2.angle
-            rowsData[l.row].adj2=l.words.adj2.text
-            rowsData[l.row].adj2Angle=l.words.adj2.angle
-            rowsData[l.row].noun2=l.words.noun2.text
-            rowsData[l.row].noun2Angle=l.words.noun2.angle
-        }
-    })
-    lockedWords.forEach(w=>{
-        if(w.mode!=="B") return
-        if(w.row<rows){
-            rowsData[w.row][w.slot]=w.text
-            rowsData[w.row][w.slot+"Angle"]=w.angle
-        }
-    })
-    rowsData.forEach(row=>{
-        if(!row.noun1)
-            row.noun1=nouns[Math.floor(Math.random()*nouns.length)]
-        if(!row.noun2)
-            row.noun2=nouns[Math.floor(Math.random()*nouns.length)]
-        if(!row.verb2)
-            row.verb2=verbs2[Math.floor(Math.random()*verbs2.length)]
-        if(!row.adj2)
-            row.adj2=adj2[Math.floor(Math.random()*adj2.length)]
-    })
-    rowsData.forEach((row,i)=>{
+
+        if(!data.noun1) data.noun1=nouns[Math.random()*nouns.length|0]
+        if(!data.noun2) data.noun2=nouns[Math.random()*nouns.length|0]
+        if(!data.verb2) data.verb2=verbs2[Math.random()*verbs2.length|0]
+        if(!data.adj2) data.adj2=adj2[Math.random()*adj2.length|0]
+
         const line=document.createElement("div")
-        const wordGroup=document.createElement("div")
-        wordGroup.className="wordGroup"
-        const s1=createWordSpan(row.noun1,"word","noun","B",i,"noun1",row.noun1Angle)
-        const s2=createWordSpan(row.verb2,"word","verb2","B",i,"verb2",row.verb2Angle)
-        const s3=createWordSpan(row.adj2,"word","adj2","B",i,"adj2",row.adj2Angle)
-        const s4=createWordSpan(row.noun2,"word","noun","B",i,"noun2",row.noun2Angle)
-        wordGroup.appendChild(s1)
-        wordGroup.appendChild(s2)
-        wordGroup.appendChild(s3)
-        wordGroup.appendChild(s4)
-        line.appendChild(wordGroup)
-        addLineLockButton(line,i,"B")
+        line.dataset.row=i
+        line.dataset.mode="B"
+        line.dataset.type="line"
+
+        const group=document.createElement("div")
+        group.className="wordGroup"
+
+        group.appendChild(createWordSpan(data.noun1,"word","noun","B",i,"noun1","line",data.noun1Angle))
+        group.appendChild(createWordSpan(data.verb2,"word","verb2","B",i,"verb2","line",data.verb2Angle))
+        group.appendChild(createWordSpan(data.adj2,"word","adj2","B",i,"adj2","line",data.adj2Angle))
+        group.appendChild(createWordSpan(data.noun2,"word","noun","B",i,"noun2","line",data.noun2Angle))
+
+        line.appendChild(group)
+        addLineLockButton(line,i,"B","line")
         poemDiv.appendChild(line)
-    })
+    }
     if(highlightEnabled){
-        const highlightRow=rows
-        let text
-        let angle=null
-        const wordLocked = lockedWords.find(w =>
-            w.mode==="B" &&
-            w.row===highlightRow &&
-            w.slot==="highlight"
+        const type="highlight"
+        const row=0
+
+        let text=null,angle=null
+
+        const lineLock=lockedLines.find(l =>
+            l.mode==="B" && l.type===type
         )
-        const lineLocked = lockedLines.find(l =>
-            l.row===highlightRow && l.mode==="B"
+
+        const wordLock=lockedWords.find(w =>
+            w.mode==="B" && w.type===type
         )
-        if(wordLocked){
-            text=wordLocked.text
-            angle=wordLocked.angle
+
+        if(lineLock && lineLock.words.highlight){
+            text=lineLock.words.highlight.text
+            angle=lineLock.words.highlight.angle
         }
-        else if(lineLocked){
-            text=lineLocked.words.highlight.text
-            angle=lineLocked.words.highlight.angle
+        else if(wordLock){
+            text=wordLock.text
+            angle=wordLock.angle
         }
         else{
             text=highlights[Math.floor(Math.random()*highlights.length)]
         }
+
         const line=document.createElement("div")
-        const span=createWordSpan(text,"highlight","highlight","B",highlightRow,"highlight",angle)
-        line.appendChild(span)
-        addLineLockButton(line,highlightRow,"B")
+        line.dataset.row=row
+        line.dataset.mode="B"
+        line.dataset.type=type
+
+        line.appendChild(
+            createWordSpan(text,"highlight","highlight","B",row,"highlight",type,angle)
+        )
+
+        addLineLockButton(line,row,"B",type)
         poemDiv.appendChild(line)
     }
+}
+
+/* title */
+function generateTitle(mode){
+    const poemDiv=document.getElementById("poem")
+
+    const type="title"
+    const row=0
+
+    let text=null,angle=null
+
+    const lineLock=lockedLines.find(l =>
+        l.mode===mode && l.type===type
+    )
+
+    const wordLock=lockedWords.find(w =>
+        w.mode===mode && w.type===type
+    )
+
+    if(lineLock && lineLock.words.title){
+        text=lineLock.words.title.text
+        angle=lineLock.words.title.angle
+    }
+    else if(wordLock){
+        text=wordLock.text
+        angle=wordLock.angle
+    }
+    else{
+        text=titles[Math.floor(Math.random()*titles.length)]
+    }
+
+    const line=document.createElement("div")
+    line.dataset.row=row
+    line.dataset.mode=mode
+    line.dataset.type=type
+    line.classList.add("titleLine")
+
+    line.appendChild(createWordSpan(text,"highlight","title",mode,row,"title",type,angle))
+    addLineLockButton(line,row,mode,type)
+
+    poemDiv.appendChild(line)
 }
 
 /* GO按钮 */
