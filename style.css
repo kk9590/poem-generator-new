@@ -40,7 +40,8 @@ body {
     background: white;
     color: black;
     padding: 6px 9px;
-    margin: 12px;
+    /* margin: 10px; */
+    margin-bottom: 10px;   /* title用的是highlight的样式，后续需要改一下 */
     font-size: 18px;
 }
 
@@ -91,7 +92,7 @@ button {
     flex-direction: column;
     align-items: center;
     gap: 5px;    /* go和filter两行间距 */
-    margin-bottom: 70px;   /* 与下方诗句的间距，可按需保留 */
+    margin-bottom: 65px;   /* 与下方诗句的间距，可按需保留 */
 }
 
 /* SET按钮 */
@@ -187,4 +188,8 @@ button {
 .lineLock{
     cursor:pointer;
     font-size:16px;
+}
+
+.titleLine {
+    margin-bottom: 13px; /* 原本行间距8px → +5 = 13 */
 }
