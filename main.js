@@ -48,7 +48,7 @@ titleBtn.addEventListener("click", () => {
 })
 
 function randomAngle(){
-    return Math.random()<0.5 ? -2 + Math.random() : 0.5 + Math.random()
+    return Math.random() < 0.5 ? -1.3 + Math.random() : 0.3 + Math.random();
 }
 
 /* 创建词块 */
@@ -117,7 +117,8 @@ function toggleLineLock(row,mode,type){
 
         if(!line) return
 
-        const words=line.querySelectorAll(".word, .highlight")
+        // 修改：加入 .title-word
+        const words=line.querySelectorAll(".word, .highlight, .title-word")
         const saved={}
 
         words.forEach(w=>{
@@ -135,7 +136,8 @@ function toggleLineLock(row,mode,type){
 
 /* 样式 */
 function applyLockStyles(){
-    const spans=document.querySelectorAll('#poem .word, #poem .highlight')
+    // 修改：加入 .title-word
+    const spans=document.querySelectorAll('#poem .word, #poem .highlight, #poem .title-word')
 
     spans.forEach(span=>{
         const locked=lockedWords.some(w=>
@@ -174,6 +176,23 @@ function addLineLockButton(line,row,mode,type){
     line.appendChild(btn)
 }
 
+/* 辅助函数：从数组中随机选一个未使用过的词 */
+function getRandomUniqueWord(array, usedWords, maxAttempts = 100) {
+    let attempts = 0;
+    let word;
+    do {
+        word = array[Math.floor(Math.random() * array.length)];
+        attempts++;
+        if (attempts > maxAttempts) {
+            // 防止无限循环（如所有词都用过了），直接返回当前词（允许重复）
+            console.warn("无法找到未使用的词，允许重复");
+            break;
+        }
+    } while (usedWords.has(word));
+    usedWords.add(word);
+    return word;
+}
+
 /* GO */
 function generatePoem(){
     const poemDiv=document.getElementById("poem")
@@ -181,17 +200,38 @@ function generatePoem(){
 
     let mode = selectedTemplate || (Math.random()<0.5 ? "A":"B")
 
+    // 创建已使用词集合，并加入当前 mode 的所有锁定词
+    const usedWords = new Set();
+
+    // 添加词锁
+    lockedWords.forEach(w => {
+        if (w.mode === mode) {
+            usedWords.add(w.text);
+        }
+    });
+
+    // 添加行锁（一行包含多个词）
+    lockedLines.forEach(l => {
+        if (l.mode === mode) {
+            Object.values(l.words).forEach(wordObj => {
+                if (wordObj && wordObj.text) {
+                    usedWords.add(wordObj.text);
+                }
+            });
+        }
+    });
+
     if(titleEnabled){
-        generateTitle(mode)
+        generateTitle(mode, usedWords)
     }
 
-    mode==="A" ? generateModeA() : generateModeB()
+    mode==="A" ? generateModeA(usedWords) : generateModeB(usedWords)
 
     applyLockStyles()
 }
 
 /* 模式A */
-function generateModeA(){
+function generateModeA(usedWords){
     const poemDiv=document.getElementById("poem")
     const rows=4
 
@@ -218,8 +258,9 @@ function generateModeA(){
             }
         })
 
-        if(!noun) noun=nouns[Math.floor(Math.random()*nouns.length)]
-        if(!verb) verb=verbs[Math.floor(Math.random()*verbs.length)]
+        // 随机选词时确保不重复
+        if(!noun) noun = getRandomUniqueWord(nouns, usedWords);
+        if(!verb) verb = getRandomUniqueWord(verbs, usedWords);
 
         const line=document.createElement("div")
         line.dataset.row=i
@@ -260,7 +301,7 @@ function generateModeA(){
             angle=wordLock.angle
         }
         else{
-            text=highlights[Math.floor(Math.random()*highlights.length)]
+            text = getRandomUniqueWord(highlights, usedWords);
         }
 
         const line=document.createElement("div")
@@ -275,7 +316,7 @@ function generateModeA(){
 }
 
 /* 模式B */
-function generateModeB(){
+function generateModeB(usedWords){
     const poemDiv=document.getElementById("poem")
 
     for(let i=0;i<2;i++){
@@ -305,10 +346,11 @@ function generateModeB(){
             }
         })
 
-        if(!data.noun1) data.noun1=nouns[Math.random()*nouns.length|0]
-        if(!data.noun2) data.noun2=nouns[Math.random()*nouns.length|0]
-        if(!data.verb2) data.verb2=verbs2[Math.random()*verbs2.length|0]
-        if(!data.adj2) data.adj2=adj2[Math.random()*adj2.length|0]
+        // 随机选词时确保不重复
+        if(!data.noun1) data.noun1 = getRandomUniqueWord(nouns, usedWords);
+        if(!data.noun2) data.noun2 = getRandomUniqueWord(nouns, usedWords);
+        if(!data.verb2) data.verb2 = getRandomUniqueWord(verbs2, usedWords);
+        if(!data.adj2) data.adj2 = getRandomUniqueWord(adj2, usedWords);
 
         const line=document.createElement("div")
         line.dataset.row=i
@@ -350,7 +392,7 @@ function generateModeB(){
             angle=wordLock.angle
         }
         else{
-            text=highlights[Math.floor(Math.random()*highlights.length)]
+            text = getRandomUniqueWord(highlights, usedWords);
         }
 
         const line=document.createElement("div")
@@ -368,7 +410,7 @@ function generateModeB(){
 }
 
 /* title */
-function generateTitle(mode){
+function generateTitle(mode, usedWords){
     const poemDiv=document.getElementById("poem")
 
     const type="title"
@@ -393,7 +435,7 @@ function generateTitle(mode){
         angle=wordLock.angle
     }
     else{
-        text=titles[Math.floor(Math.random()*titles.length)]
+        text = getRandomUniqueWord(titles, usedWords);
     }
 
     const line=document.createElement("div")
@@ -402,7 +444,8 @@ function generateTitle(mode){
     line.dataset.type=type
     line.classList.add("titleLine")
 
-    line.appendChild(createWordSpan(text,"highlight","title",mode,row,"title",type,angle))
+    // 使用新类名 "title-word"
+    line.appendChild(createWordSpan(text,"title-word","title",mode,row,"title",type,angle))
     addLineLockButton(line,row,mode,type)
 
     poemDiv.appendChild(line)
