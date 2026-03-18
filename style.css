@@ -40,9 +40,21 @@ body {
     background: white;
     color: black;
     padding: 6px 9px;
-    /* margin: 10px; */
-    margin-bottom: 10px;   /* title用的是highlight的样式，后续需要改一下 */
+    margin: 6px; 
+    /* margin-bottom: 10px;   */
     font-size: 18px;
+}
+
+/* 新增：title 独立样式 */
+.title-word {
+    display: inline-block;
+    background: white;
+    color: black;
+    padding: 6px 4px;     
+    margin: 15px;
+    font-size: 18px;       
+    /*   font-weight: bold;      加粗 */
+    /* 可自定义其他样式，比如背景色、边框等 */
 }
 
 .author {
@@ -92,7 +104,7 @@ button {
     flex-direction: column;
     align-items: center;
     gap: 5px;    /* go和filter两行间距 */
-    margin-bottom: 65px;   /* 与下方诗句的间距，可按需保留 */
+    margin-bottom: 60px;   /* 与下方诗句的间距，可按需保留 */
 }
 
 /* SET按钮 */
