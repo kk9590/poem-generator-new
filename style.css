@@ -103,8 +103,8 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;    /* go和filter两行间距 */
-    margin-bottom: 60px;   /* 与下方诗句的间距，可按需保留 */
+    gap: 8px;    /* go和filter两行间距 */
+    margin-bottom: 55px;   /* 与下方诗句的间距，可按需保留 */
     justify-content: center;
 }
 
