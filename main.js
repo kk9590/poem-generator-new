@@ -562,42 +562,44 @@ function generateModeC(usedWords) {
 
 /* title */
 function generateTitle(mode, usedWords){
-    const poemDiv=document.getElementById("poem")
+    const poemDiv = document.getElementById("poem")
 
-    const type="title"
-    const row=0
+    const type = "title"
+    const row = 0
 
-    let text=null,angle=null
+    let text = null, angle = null
 
-    const lineLock=lockedLines.find(l =>
-        l.mode===mode && l.type===type
+    const lineLock = lockedLines.find(l =>
+        l.mode === mode && l.type === type
     )
 
-    const wordLock=lockedWords.find(w =>
-        w.mode===mode && w.type===type
+    const wordLock = lockedWords.find(w =>
+        w.mode === mode && w.type === type
     )
 
-    if(lineLock && lineLock.words.title){
-        text=lineLock.words.title.text
-        angle=lineLock.words.title.angle
-    }
-    else if(wordLock){
-        text=wordLock.text
-        angle=wordLock.angle
-    }
-    else{
+    if (lineLock && lineLock.words.title) {
+        text = lineLock.words.title.text
+        angle = lineLock.words.title.angle
+    } else if (wordLock) {
+        text = wordLock.text
+        angle = wordLock.angle
+    } else {
+        // 从词库中随机选取未使用的标题
         text = getRandomUniqueWord(titles, usedWords);
+        // 为标题生成专属角度：范围 0.3~0.8 或 -0.8~-0.3
+        const sign = Math.random() < 0.5 ? -1 : 1;
+        angle = sign * (0.3 + Math.random() * 0.5);
     }
 
-    const line=document.createElement("div")
-    line.dataset.row=row
-    line.dataset.mode=mode
-    line.dataset.type=type
+    const line = document.createElement("div")
+    line.dataset.row = row
+    line.dataset.mode = mode
+    line.dataset.type = type
     line.classList.add("titleLine")
 
-    // 使用新类名 "title-word"
-    line.appendChild(createWordSpan(text,"title-word","title",mode,row,"title",type,angle))
-    addLineLockButton(line,row,mode,type)
+    // 使用 title-word 类名创建标题块
+    line.appendChild(createWordSpan(text, "title-word", "title", mode, row, "title", type, angle))
+    addLineLockButton(line, row, mode, type)
 
     poemDiv.appendChild(line)
 }
