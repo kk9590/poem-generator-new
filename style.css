@@ -103,8 +103,9 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;    /* go和filter两行间距 */
+    gap: 10px;    /* go和filter两行间距 */
     margin-bottom: 60px;   /* 与下方诗句的间距，可按需保留 */
+    justify-content: center;
 }
 
 /* SET按钮 */
@@ -148,9 +149,10 @@ button {
     box-shadow: 2px 2px 0px rgba(255,255,255,0.4);
 }
 
+#titleToggle, /* 两个按钮的大小 */
 #highlightToggle {
     font-size: 15px;
-    padding: 5.5px 9px;
+    padding: 4px 7px;
 }
 
 /* 下拉面板 */
@@ -163,7 +165,7 @@ button {
     border-radius:6px;
 
     position:absolute;
-    top:215px;
+    top:225px;
     left:50%;
     transform:translateX(-50%);
 
@@ -204,4 +206,42 @@ button {
 
 .titleLine {
     margin-bottom: 13px; /* 原本行间距8px → +5 = 13 */
+}
+
+/* save下拉面板，复用 filterPanel 样式，但单独定义 #savePanel */
+#savePanel {
+    background:#111;
+    border:1px solid #444;
+    padding:15px;
+    width:200px;
+    margin:10px auto;
+    border-radius:6px;
+    position:absolute;
+    top:225px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:1000;
+}
+
+/* Save按钮 */
+#saveButton{  
+    background: rgb(0, 0, 0);
+    color: rgb(144, 144, 144);
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    border:1.5px solid #252525;
+    /* align-self: flex-end;   /* 向右：靠右对齐，不是居中对齐 */
+    /* margin-right: 90px;     /* 微调位置，可改成80~110 */
+}
+
+/* 截图时隐藏锁定图标 */
+.no-lock-icons .locked::after {
+    display: none;
+}
+
+/* 覆盖原有SET按钮的靠右样式 */
+#filterButton {
+    align-self: auto;
+    margin-right: 0;
 }
