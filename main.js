@@ -228,6 +228,16 @@ function generatePoem(){
     mode==="A" ? generateModeA(usedWords) : generateModeB(usedWords)
 
     applyLockStyles()
+
+    /* 日志；调用 */
+    logGeneration({ 
+    time: new Date().toISOString(),
+    mode: mode,
+    highlight: highlightEnabled,
+    title: titleEnabled,
+    lockedWords: [...lockedWords],
+    lockedLines: [...lockedLines]
+})
 }
 
 /* 模式A */
@@ -454,3 +464,22 @@ function generateTitle(mode, usedWords){
 /* GO按钮 */
 document.getElementById("goButton")
 .addEventListener("click",generatePoem)
+
+/* 日志，存储生成记录，用于数据分析；每次点击go，把数据记录下来 */
+function logGeneration(data){
+    let logs = JSON.parse(localStorage.getItem("poemLogs") || "[]")
+    logs.push(data)
+    localStorage.setItem("poemLogs", JSON.stringify(logs))
+}
+
+/* 导出日志 */
+document.getElementById("exportData").onclick = function(){
+    const data = localStorage.getItem("poemLogs")
+    const blob = new Blob([data], {type: "application/json"})
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "poem_logs.json"
+    a.click()
+}
