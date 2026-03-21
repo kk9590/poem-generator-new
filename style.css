@@ -51,7 +51,7 @@ body {
     background: white;
     color: black;
     padding: 6px 4px;     
-    margin: 15px;
+    margin-bottom: 12px;  
     font-size: 18px;       
     /*   font-weight: bold;      加粗 */
     /* 可自定义其他样式，比如背景色、边框等 */
