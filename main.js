@@ -11,6 +11,26 @@ document.addEventListener("click",(e)=>{
     }
 })
 
+const saveButton = document.getElementById("saveButton");
+const savePanel = document.getElementById("savePanel");
+
+saveButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    savePanel.classList.toggle("hidden");
+    // 同时关闭另一个面板（可选）
+    filterPanel.classList.add("hidden");
+});
+
+// 点击其他地方关闭所有面板
+document.addEventListener("click", (e) => {
+    if (!filterPanel.contains(e.target) && e.target !== filterButton) {
+        filterPanel.classList.add("hidden");
+    }
+    if (!savePanel.contains(e.target) && e.target !== saveButton) {
+        savePanel.classList.add("hidden");
+    }
+});
+
 let selectedTemplate = null
 let highlightEnabled = false
 let titleEnabled = false
@@ -198,7 +218,12 @@ function generatePoem(){
     const poemDiv=document.getElementById("poem")
     poemDiv.innerHTML=""
 
-    let mode = selectedTemplate || (Math.random()<0.5 ? "A":"B")
+    // 修改：如果没有选中模板，随机从 A/B/C 中选一个
+    let mode = selectedTemplate;
+    if (!mode) {
+        const modes = ['A', 'B', 'C'];
+        mode = modes[Math.floor(Math.random() * modes.length)];
+    }
 
     // 创建已使用词集合，并加入当前 mode 的所有锁定词
     const usedWords = new Set();
@@ -225,19 +250,26 @@ function generatePoem(){
         generateTitle(mode, usedWords)
     }
 
-    mode==="A" ? generateModeA(usedWords) : generateModeB(usedWords)
+    // 根据模式调用不同的生成函数
+    if (mode === "A") {
+        generateModeA(usedWords);
+    } else if (mode === "B") {
+        generateModeB(usedWords);
+    } else if (mode === "C") {
+        generateModeC(usedWords);
+    }
 
     applyLockStyles()
 
-    /* 日志；调用 */
+    /* 日志；调用。你每点一次 GO = 存一条数据 */
     logGeneration({ 
-    time: new Date().toISOString(),
-    mode: mode,
-    highlight: highlightEnabled,
-    title: titleEnabled,
-    lockedWords: [...lockedWords],
-    lockedLines: [...lockedLines]
-})
+        time: new Date().toISOString(),
+        mode: mode,
+        highlight: highlightEnabled,
+        title: titleEnabled,
+        lockedWords: [...lockedWords],
+        lockedLines: [...lockedLines]
+    })
 }
 
 /* 模式A */
@@ -419,6 +451,115 @@ function generateModeB(usedWords){
     }
 }
 
+/* 模式C：四行，每行格式：名词 + 副词(…得) + 形容词 */
+function generateModeC(usedWords) {
+    const poemDiv = document.getElementById("poem")
+    const rows = 2  // 四行
+
+    for (let i = 0; i < rows; i++) {
+        // 初始化当前行的三个词及其角度
+        let noun = null, adv = null, adj = null
+        let nounAngle = null, advAngle = null, adjAngle = null
+
+        // 检查行锁（整行锁定）
+        const lineLock = lockedLines.find(l =>
+            l.mode === "C" && l.type === "line" && l.row === i
+        )
+
+        if (lineLock) {
+            // 从行锁中读取每个槽位的词和角度
+            if (lineLock.words.noun3) {
+                noun = lineLock.words.noun3.text
+                nounAngle = lineLock.words.noun3.angle
+            }
+            if (lineLock.words.adv3) {
+                adv = lineLock.words.adv3.text
+                advAngle = lineLock.words.adv3.angle
+            }
+            if (lineLock.words.adj3) {
+                adj = lineLock.words.adj3.text
+                adjAngle = lineLock.words.adj3.angle
+            }
+        }
+
+        // 检查单个词锁（可能覆盖行锁中的个别词）
+        lockedWords.forEach(w => {
+            if (w.mode === "C" && w.type === "line" && w.row === i) {
+                if (w.slot === "noun3") {
+                    noun = w.text
+                    nounAngle = w.angle
+                }
+                if (w.slot === "adv3") {
+                    adv = w.text
+                    advAngle = w.angle
+                }
+                if (w.slot === "adj3") {
+                    adj = w.text
+                    adjAngle = w.angle
+                }
+            }
+        })
+
+        // 对于未被锁定的槽位，从对应词库中随机选取（不重复）
+        if (!noun) noun = getRandomUniqueWord(noun3, usedWords)
+        if (!adv) adv = getRandomUniqueWord(adv3, usedWords)
+        if (!adj) adj = getRandomUniqueWord(adj3, usedWords)
+
+        // 创建行容器
+        const line = document.createElement("div")
+        line.dataset.row = i
+        line.dataset.mode = "C"
+        line.dataset.type = "line"
+
+        const group = document.createElement("div")
+        group.className = "wordGroup"
+
+        // 按顺序添加三个词块
+        group.appendChild(createWordSpan(noun, "word", "noun3", "C", i, "noun3", "line", nounAngle))
+        group.appendChild(createWordSpan(adv, "word", "adv3", "C", i, "adv3", "line", advAngle))
+        group.appendChild(createWordSpan(adj, "word", "adj3", "C", i, "adj3", "line", adjAngle))
+
+        line.appendChild(group)
+        addLineLockButton(line, i, "C", "line")
+        poemDiv.appendChild(line)
+    }
+
+    // 如果开启了高亮，添加高亮行（与模式A/B逻辑相同）
+    if (highlightEnabled) {
+        const type = "highlight"
+        const row = 0  // 高亮行固定行号0（与模式A/B一致）
+
+        let text = null, angle = null
+
+        const lineLock = lockedLines.find(l =>
+            l.mode === "C" && l.type === type
+        )
+
+        const wordLock = lockedWords.find(w =>
+            w.mode === "C" && w.type === type
+        )
+
+        if (lineLock && lineLock.words.highlight) {
+            text = lineLock.words.highlight.text
+            angle = lineLock.words.highlight.angle
+        } else if (wordLock) {
+            text = wordLock.text
+            angle = wordLock.angle
+        } else {
+            text = getRandomUniqueWord(highlights, usedWords)
+        }
+
+        const line = document.createElement("div")
+        line.dataset.row = row
+        line.dataset.mode = "C"
+        line.dataset.type = type
+
+        line.appendChild(createWordSpan(text, "highlight", "highlight", "C", row, "highlight", type, angle))
+        addLineLockButton(line, row, "C", type)
+        poemDiv.appendChild(line)
+    }
+}
+
 /* title */
 function generateTitle(mode, usedWords){
     const poemDiv=document.getElementById("poem")
@@ -483,3 +624,85 @@ document.getElementById("exportData").onclick = function(){
     a.download = "poem_logs.json"
     a.click()
 }
+
+// 复制文本
+document.getElementById("copyTextBtn").addEventListener("click", () => {
+    const poemDiv = document.getElementById("poem");
+    if (!poemDiv.children.length) {
+        alert("还没有生成诗歌，请先点击 GO");
+        return;
+    }
+
+    let textLines = [];
+    const lines = poemDiv.querySelectorAll("#poem > div");
+    lines.forEach(line => {
+        const words = line.querySelectorAll(".word, .highlight, .title-word");
+        const lineText = Array.from(words).map(w => w.innerText).join('');
+        if (lineText.trim()) textLines.push(lineText);
+    });
+
+    const finalText = textLines.join('\n');
+    navigator.clipboard.writeText(finalText).then(() => {
+        alert("诗歌已复制到剪贴板");
+    }).catch(err => {
+        console.error("复制失败", err);
+        alert("复制失败，请手动复制");
+    });
+});
+
+document.getElementById("saveImageBtn").addEventListener("click", async () => {
+    const originalPoem = document.getElementById("poem");
+    if (!originalPoem.children.length) {
+        alert("还没有生成诗歌，请先点击 GO");
+        return;
+    }
+
+    // 克隆诗歌区域
+    const clonePoem = originalPoem.cloneNode(true);
+    
+    // 隐藏所有行锁按钮（🔒）
+    clonePoem.querySelectorAll('.lineLock').forEach(btn => {
+        btn.style.display = 'none';
+    });
+    
+    // 以下为原有容器创建、截图代码...
+    const container = document.createElement("div");
+    container.style.width = "450px";
+    container.style.height = "600px";
+    container.style.backgroundColor = "#000000";
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.justifyContent = "center";
+    container.style.position = "absolute";
+    container.style.top = "-9999px";
+    container.style.left = "-9999px";
+    
+    const innerWrapper = document.createElement("div");
+    innerWrapper.style.padding = "20px 10px";
+    innerWrapper.style.maxWidth = "100%";
+    innerWrapper.style.boxSizing = "border-box";
+    
+    innerWrapper.appendChild(clonePoem);
+    container.appendChild(innerWrapper);
+    document.body.appendChild(container);
+    
+    container.classList.add("no-lock-icons"); // 隐藏词锁的📌图标
+    
+    try {
+        const canvas = await html2canvas(container, {
+            backgroundColor: "#000000",
+            scale: 2,
+            logging: false,
+            useCORS: false
+        });
+        const link = document.createElement("a");
+        link.download = "poem.png";
+        link.href = canvas.toDataURL();
+        link.click();
+    } catch (error) {
+        console.error("截图失败", error);
+        alert("生成图片失败，请重试");
+    } finally {
+        document.body.removeChild(container);
+    }
+});
