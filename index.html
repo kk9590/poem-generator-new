@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chance Verse</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script> <!-- 用于导出 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <h1>Chance Verse</h1>
@@ -13,37 +13,41 @@
     <div id="controls">
         <button id="goButton">GO</button>
         <div style="display: flex; gap: 10px; margin-top: 5px;">
-        <button id="filterButton">SET</button>
-        <button id="saveButton">SAVE</button>
-    </div>
-    <!-- Set 下拉面板 -->
-    <div id="filterPanel" class="hidden">
-        <div class="filterSection">
-            <span>Mode</span>
-            <div class="templateOption" data-mode="A">A</div>
-            <div class="templateOption" data-mode="B">B</div>
-            <div class="templateOption" data-mode="C">C</div>
+            <button id="filterButton">SET</button>
+            <button id="saveButton">SAVE</button>
         </div>
-        <div class="filterSection">
-            <span>Extra</span>
-            <div class="templateOption" id="titleToggle">Title</div>
-            <div class="templateOption" id="highlightToggle">Highlight</div>
+        <!-- Set 下拉面板 -->
+        <div id="filterPanel" class="hidden">
+            <div class="filterSection">
+                <span>Mode</span>
+                <div class="templateOption" data-mode="A">A</div>
+                <div class="templateOption" data-mode="B">B</div>
+                <div class="templateOption" data-mode="C">C</div>
+            </div>
+            <div class="filterSection">
+                <span>Extra</span>
+                <div class="templateOption" id="titleToggle">Title</div>
+                <div class="templateOption" id="highlightToggle">Highlight</div>
+            </div>
         </div>
-    </div>
-    <!-- Save 下拉面板 -->
-    <div id="savePanel" class="hidden">
-        <div class="filterSection">
-            <button id="saveImageBtn" class="templateOption">保存图片</button>
-        </div>
-        <div class="filterSection">
-            <button id="copyTextBtn" class="templateOption">复制文本</button>
-        </div>
-        <button id="exportData">导出日志</button>
+        <!-- Save 下拉面板 -->
+        <div id="savePanel" class="hidden">
+            <div class="filterSection">
+                <button id="saveImageBtn" class="templateOption">保存图片</button>
+            </div>
+            <div class="filterSection">
+                <button id="copyTextBtn" class="templateOption">复制文本</button>
+            </div>
+            <div class="filterSection">
+                <button id="exportData" class="templateOption">导出生成日志</button>
+            </div>
+            <div class="filterSection">
+                <button id="exportActionsBtn" class="templateOption">导出操作日志</button>
+            </div>
         </div>
     </div>
     <div id="poem"></div>
 
-    <!-- 先引入词库，再引入主逻辑 -->
     <script src="words.js"></script>
     <script src="main.js"></script>
 </body>
